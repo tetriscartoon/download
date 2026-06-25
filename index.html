@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartoon Tetris – Fun & Colorful Classic Game</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --primary: #ff6b9d;
+    --accent: #ffd93d;
+    --accent-2: #6bcf7f;
+    --accent-3: #4d96ff;
+    --bg: #fff9e6;
+    --text: #2d3436;
+    --muted: #636e72;
+    --border: #2d3436;
+  }
+
+  body {
+    font-family: 'Comic Neue', cursive;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  .falling-blocks {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .block {
+    position: absolute;
+    width: 40px; height: 40px;
+    opacity: 0.15;
+    animation: fall linear infinite;
+    border: 3px solid var(--border);
+    border-radius: 8px;
+  }
+  @keyframes fall {
+    0% { transform: translateY(-100px) rotate(0deg); }
+    100% { transform: translateY(110vh) rotate(360deg); }
+  }
+
+  nav {
+    position: sticky;
+    top: 0;
+    background: var(--accent);
+    border-bottom: 4px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    animation: slideDown 0.6s ease;
+  }
+  @keyframes slideDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+  }
+  .logo {
+    font-family: 'Bangers', cursive;
+    font-size: 2rem;
+    font-weight: 400;
+    letter-spacing: 3px;
+    color: var(--primary);
+    text-shadow: 3px 3px 0 var(--border);
+  }
+  nav ul {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  nav a {
+    font-family: 'Bangers', cursive;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    position: relative;
+  }
+  nav a:hover {
+    color: var(--primary);
+    transform: scale(1.1) rotate(-2deg);
+  }
+
+  .hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    z-index: 1;
+  }
+  .hero-content {
+    max-width: 1200px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  .hero-text {
+    animation: fadeInLeft 1s ease;
+  }
+  @keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .hero h1 {
+    font-family: 'Bangers', cursive;
+    font-size: 4rem;
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    color: var(--primary);
+    text-shadow: 4px 4px 0 var(--accent);
+  }
+  .hero h1 span {
+    color: var(--accent-3);
+    text-shadow: 4px 4px 0 var(--border);
+  }
+  .hero p {
+    font-size: 1.3rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    font-weight: 700;
+  }
+  .hero-banner {
+    width: 100%;
+    border-radius: 20px;
+    border: 5px solid var(--border);
+    box-shadow: 8px 8px 0 var(--border);
+    animation: fadeInRight 1s ease, float 4s ease-in-out infinite;
+    transition: transform 0.4s;
+  }
+  .hero-banner:hover { transform: scale(1.05) rotate(2deg); }
+  @keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  .btn-group { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-family: 'Bangers', cursive;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    text-decoration: none;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: 4px solid var(--border);
+    box-shadow: 4px 4px 0 var(--border);
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+  .btn-primary:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--border);
+  }
+  .btn-secondary {
+    background: var(--accent);
+    color: var(--text);
+  }
+  .btn-secondary:hover {
+    background: var(--accent-2);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--border);
+  }
+
+  section {
+    padding: 5rem 2rem;
+    position: relative;
+    z-index: 1;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-title {
+    font-family: 'Bangers', cursive;
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    color: var(--accent-3);
+    text-shadow: 3px 3px 0 var(--border);
+  }
+  .section-subtitle {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 3rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+  .feature-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    border: 4px solid var(--border);
+    box-shadow: 6px 6px 0 var(--border);
+    transition: all 0.4s;
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  .feature-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .feature-card:hover {
+    transform: translateY(-10px) rotate(-2deg);
+    box-shadow: 8px 8px 0 var(--border);
+  }
+  .feature-icon {
+    width: 70px; height: 70px;
+    background: var(--accent);
+    border: 4px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    box-shadow: 3px 3px 0 var(--border);
+  }
+  .feature-card h3 {
+    font-family: 'Bangers', cursive;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary);
+  }
+  .feature-card p { color: var(--muted); font-weight: 700; }
+
+  .screenshot-section {
+    background: linear-gradient(135deg, #ffeaa7, #fff9e6);
+  }
+  .screenshot-img {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    display: block;
+    border-radius: 20px;
+    border: 5px solid var(--border);
+    box-shadow: 10px 10px 0 var(--border);
+    transition: transform 0.5s;
+  }
+  .screenshot-img:hover { transform: scale(1.03) rotate(-1deg); }
+
+  .download-section {
+    background: var(--accent-3);
+    color: white;
+    text-align: center;
+    border-radius: 30px;
+    margin: 4rem 2rem;
+    padding: 5rem 2rem;
+    position: relative;
+    overflow: hidden;
+    border: 5px solid var(--border);
+    box-shadow: 10px 10px 0 var(--border);
+  }
+  .download-section::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,217,61,0.4), transparent 60%);
+    animation: pulse 6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+  }
+  .download-section > * { position: relative; z-index: 1; }
+  .download-section h2 {
+    font-family: 'Bangers', cursive;
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 4px 4px 0 var(--border);
+  }
+  .download-section p {
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    font-weight: 700;
+  }
+  .download-section .btn-primary {
+    background: var(--accent);
+    color: var(--text);
+    font-size: 1.4rem;
+    padding: 1.2rem 2.5rem;
+  }
+
+  footer {
+    background: var(--primary);
+    color: white;
+    text-align: center;
+    padding: 2rem;
+    border-top: 5px solid var(--border);
+    font-family: 'Bangers', cursive;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+  }
+  footer p:first-child {
+    margin-bottom: 0.5rem;
+  }
+  footer p:last-child {
+    font-size: 1rem;
+    opacity: 0.9;
+    color: var(--accent);
+  }
+
+  /* Modal Popup */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+  }
+  .modal-overlay.active {
+    display: flex;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .modal {
+    background: white;
+    border: 5px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 10px 10px 0 var(--border);
+    animation: slideUp 0.4s ease;
+    text-align: center;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal h3 {
+    font-family: 'Bangers', cursive;
+    font-size: 2rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 0 var(--border);
+  }
+  .modal p {
+    font-size: 1.1rem;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+  }
+  .modal .password-box {
+    background: var(--accent);
+    border: 3px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 4px 4px 0 var(--border);
+  }
+  .modal .password-label {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+  .modal .password {
+    font-family: 'Comic Neue', cursive;
+    font-size: 1.8rem;
+    color: var(--primary);
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+  .modal .password-note {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.3rem;
+    font-style: italic;
+  }
+  .modal .btn-close {
+    background: var(--accent-2);
+    color: white;
+    padding: 0.8rem 2rem;
+    border: 3px solid var(--border);
+    border-radius: 50px;
+    font-family: 'Bangers', cursive;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--border);
+    transition: all 0.3s;
+  }
+  .modal .btn-close:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 var(--border);
+  }
+
+  @media (max-width: 768px) {
+    .hero-content { grid-template-columns: 1fr; text-align: center; }
+    .hero h1 { font-size: 3rem; }
+    nav ul { display: none; }
+    .btn-group { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="falling-blocks" id="blocks"></div>
+
+<nav>
+  <div class="logo">◆ CARTOON TETRIS</div>
+  <ul>
+    <li><a href="#home">Home</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#screenshot">Preview</a></li>
+    <li><a href="#download">Download</a></li>
+  </ul>
+</nav>
+
+<section class="hero" id="home">
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1>The Fun <span>Cartoon</span><br>Tetris Adventure!</h1>
+      <p>Jump into a colorful world of falling blocks! A playful cartoon twist on the classic game everyone loves. No ads, no stress — just pure cartoon fun!</p>
+      <div class="btn-group">
+        <a href="#download" class="btn btn-primary">⬇ Download Free</a>
+        <a href="#features" class="btn btn-secondary">Learn More</a>
+      </div>
+    </div>
+    <img src="YOUR_URL_1" alt="Cartoon Tetris Banner" class="hero-banner">
+  </div>
+</section>
+
+<section id="features">
+  <div class="container">
+    <h2 class="section-title">Why it it's low cortisol?</h2>
+    <p class="section-subtitle">u need to try that brother</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎮</div>
+        <h3>Cartoon Fun</h3>
+        <p>Playful cartoon graphics that make every block feel alive and bouncy!</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Smooth & Snappy</h3>
+        <p>Super smooth animations with cartoon-style bounce effects. So satisfying!</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <h3>Colorful World</h3>
+        <p>Bright, cheerful colors and hand-drawn style that brings smiles to your face.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏆</div>
+        <h3>Beat Your Best</h3>
+        <p>Challenge yourself and reach new high scores. Endless cartoon fun awaits!</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"></div>
+        <h3>Fun Soundtrack</h3>
+        <p>Upbeat, cheerful music that keeps you bouncing along with every move.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💾</div>
+        <h3>Quick & Easy</h3>
+        <p>Lightweight download, instant play. Jump right into the cartoon action!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="screenshot-section" id="screenshot">
+  <div class="container">
+    <h2 class="section-title">Check It Out!</h2>
+    <p class="section-subtitle">In-game screenshot:</p>
+    <img src="YOUR_URL_2" alt="Cartoon Tetris Screenshot" class="screenshot-img">
+  </div>
+</section>
+
+<section id="download">
+  <div class="download-section">
+    <h2>Ready to Play?</h2>
+    <p>Download Cartoon Tetris for free and start stacking colorful blocks today!</p>
+    <a href="#" class="btn btn-primary" id="downloadBtn">⬇ Download Now</a>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Cartoon Tetris.</p>
+  <p>made by kEbab</p>
+</footer>
+
+<!-- Download Modal -->
+<div class="modal-overlay" id="downloadModal">
+  <div class="modal">
+    <h3>🎉 Download Started!</h3>
+    <p>Your game is downloading now. The ZIP archive is password protected:</p>
+    <div class="password-box">
+      <div class="password-label">Password:</div>
+      <div class="password">kEbab</div>
+      <div class="password-note">— by kEbab</div>
+    </div>
+    <button class="btn-close" id="closeModal">Got it!</button>
+  </div>
+</div>
+
+<script>
+  const colors = ['#ff6b9d', '#ffd93d', '#6bcf7f', '#4d96ff', '#ff9ff3', '#feca57'];
+  const blocksContainer = document.getElementById('blocks');
+  for (let i = 0; i < 20; i++) {
+    const block = document.createElement('div');
+    block.className = 'block';
+    block.style.left = Math.random() * 100 + '%';
+    block.style.background = colors[Math.floor(Math.random() * colors.length)];
+    block.style.animationDuration = (5 + Math.random() * 10) + 's';
+    block.style.animationDelay = Math.random() * 5 + 's';
+    blocksContainer.appendChild(block);
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 100);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  document.querySelectorAll('.feature-card').forEach(card => observer.observe(card));
+
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // Download Modal Logic
+  const downloadBtn = document.getElementById('downloadBtn');
+  const downloadModal = document.getElementById('downloadModal');
+  const closeModal = document.getElementById('closeModal');
+
+  downloadBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    
+    // Show modal
+    downloadModal.classList.add('active');
+    
+    // Trigger download (replace URL with your actual download link)
+    const downloadUrl = 'YOUR_DOWNLOAD_URL_HERE.zip';
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = 'cartoon-tetris.zip';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+
+  closeModal.addEventListener('click', () => {
+    downloadModal.classList.remove('active');
+  });
+
+  downloadModal.addEventListener('click', (e) => {
+    if (e.target === downloadModal) {
+      downloadModal.classList.remove('active');
+    }
+  });
+</script>
+
+</body>
+</html>
